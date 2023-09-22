@@ -35,9 +35,8 @@ public:
 
 	void push_back (const std::string& val) ;
 
-	void push_front (const std::string& val) {
-		tete = new Chainon(val,tete);
-	}
+	// FAUTE : push_front ne doit être codé que dans List.cpp, ici on veut seulement une déclaration, push_front était défini dans List.h ET List.cpp
+	void push_front (const std::string& val);
 
 	bool empty() ;
 

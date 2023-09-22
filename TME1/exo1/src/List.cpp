@@ -1,3 +1,7 @@
+#include <ostream>
+#include <cstddef>
+#include "List.h"
+
 
 namespace pr {
 
@@ -9,13 +13,20 @@ size_t Chainon::length() {
 	if (next != nullptr) {
 		len += next->length();
 	}
-	return length();
+	// FAUTE : on rappelle length() plutôt que de renvoyer la valeur de la variable len
+	return len;
 }
 
-void Chainon::print (std::ostream & os) {
+// FAUTE : print est déclarer en const dans List.h mais ici il ne spécifie pas const
+void Chainon::print (std::ostream & os) const {
 	os << data ;
 	if (next != nullptr) {
 		os << ", ";
+	}
+	// FAUTE : il fallait ajouter la condition d'arrêt de la récursion
+	else
+	{
+		return;
 	}
 	next->print(os);
 }
@@ -45,7 +56,8 @@ void List::push_front (const std::string& val) {
 	tete = new Chainon(val,tete);
 }
 
-bool empty() {
+// FAUTE : il faut préciser qu'on implémente
+bool List::empty() {
 	return tete == nullptr;
 }
 
@@ -57,8 +69,6 @@ size_t List::size() const {
 	}
 }
 
-} // namespace pr
-
 std::ostream & operator<< (std::ostream & os, const pr::List & vec)
 {
 	os << "[";
@@ -69,3 +79,4 @@ std::ostream & operator<< (std::ostream & os, const pr::List & vec)
 	return os;
 }
 
+} // namespace pr
