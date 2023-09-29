@@ -69,7 +69,7 @@ int main () {
 
 	ifstream input = ifstream("./tmp/WarAndPeace.txt");
 	//vector<pair<string, int>> mots;
-	// TODO : problème sur cette ligne ? HashMap<string, int> mots;
+	HashMap<string, int> mots;
 
 	auto start = steady_clock::now();
 	cout << "Parsing War and Peace" << endl;
@@ -89,7 +89,7 @@ int main () {
 
 		//for (pair<string, int> & p : mots) {
 		// on peut faire const auto &
-		/* TODO  : for (auto & p : mots) {
+		for (auto & p : mots) {
 			if (p.first == word)
 			{
 				trouver = true;
@@ -97,7 +97,20 @@ int main () {
 				p.second++;
 				break;
 			}
-		}*/
+		}
+
+		int * valeur = mots.get(word);
+		if (valeur != nullptr)
+		{
+			// Mot trouvé
+			mots.put(word, valeur + 1);
+		}
+		else
+		{
+			// Mot non trouvé
+			mots.put(word, 1);
+		}
+
 		// vérifier que le mot est présent dans le vecteur
 		// TODO  : if (!trouver)
 			// TODO  : mots.push_back(std::make_pair(word, 1));
