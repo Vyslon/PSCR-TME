@@ -1,3 +1,5 @@
+// TODO : rajouter O2 dans la compilation
+
 #include <iostream>
 #include <fstream>
 #include <regex>
@@ -14,10 +16,12 @@ class HashMap {
 			public:
 				const K key;
 				V value;
+
+                Entry(const K key, V value) : key(key), value(value) {}
 		};
 
-		typedef std::vector<std::forward_list<Entry>> buckets_t;
-
+		typedef std::vector<std::forward_list<Entry> > buckets_t;
+        buckets_t buckets;
 
 		class iterator {
 		public:
@@ -26,11 +30,12 @@ class HashMap {
 
 			buckets_t & buck; // ou pointeur de hashmap
 
-			iterator(buckets_t buck, size_t index, std::forward_list<Entry>::iterator curr) : buck(buck), index(index), curr(curr) {}
+			iterator(buckets_t buck, size_t index, typename std::forward_list<Entry>::iterator curr) : buck(buck), index(index), curr(curr)  {}
 
 			// Gérer débordement ?
-			void operator++() {
-				++curr;
+			iterator operator++() {
+                // TODO : ERREUR 1 | buck size = 1 ?????
+				curr++;
 				if (curr == buck[index].end()){
 					index++;
 					while(index < buck.size() && buck[index].empty())
@@ -39,6 +44,7 @@ class HashMap {
 					if (index < buck.size())
 						curr = buck[index].begin();
 				}
+                return iterator(buck, index, curr);
 			}
 
 			Entry & operator*() {
@@ -63,18 +69,16 @@ class HashMap {
 			return iterator(buckets, ind, buckets[ind].begin());
 		}
 
-
 		iterator end() {
-			// TODO : modifier
-			return iterator(buckets, 0,  buckets[0].end());
+            return iterator(buckets, buckets.size(), buckets[buckets.size() - 1].end());
 		}
 
-		buckets_t buckets;
+
 
 		HashMap(size_t size) : buckets(size) {}
 
 		V* get(const K & key) {
-			size_t h = std::hash<K>()(key)  % size();
+			size_t h = std::hash<K>()(key)  % buckets.size();
 			 for (auto & ent : buckets[h]){
 				 if (ent.key == key) {
 					 return &ent.value;
@@ -84,7 +88,14 @@ class HashMap {
 		};
 
 		 bool put (const K & key, const V & value) {
-			 size_t h = std::hash<K>()(key) % size();
+             // todo : if taille actuelle >= 80% du nombre de buckets : grow
+             if (size() >= 0.8 * buckets.size())
+             {
+                 grow();
+             }
+
+
+			 size_t h = std::hash<K>()(key) % buckets.size();
 			 for (auto & ent : buckets[h]){
 				 if (ent.key == key) {
 					 ent.value = value;
@@ -96,9 +107,17 @@ class HashMap {
 		 }
 
 		 size_t size() const {
-			 return buckets.size();
+             // TODO : nombre de buckets non vide?
+             int res = 0;
+             for (int i = 0; i < buckets.size(); ++i)
+             {
+                if (!buckets[i].empty())
+                    res++;
+             }
+             return std::max(res, 1);
 		 }
 
+         // TODO : agrandir HashMap
 		 void grow() {
 			 HashMap tmp(2 * buckets.size());
 			 for (auto & b : buckets) {
@@ -106,7 +125,7 @@ class HashMap {
 					 tmp.put(e.key, e.value);
 				 }
 			 }
-			 this.buckets = tmp.buckets;
+			 this->buckets = std::move(tmp.buckets);
 		 }
 };
 
@@ -167,32 +186,31 @@ int main () {
 		// passe en lowercase
 		transform(word.begin(),word.end(),word.begin(),::tolower);
 
-		bool trouver = false;
+        // mots.put(word, 0);
+
+        int * cell = mots.get(word);
+        if (mots.get(word) != nullptr)
+        {
+            // TODO : on n'est jamais dans ce cas là
+            (*cell)++;
+        }
+        else
+        {
+            mots.put(word, 1);
+        }
 
 		//for (pair<string, int> & p : mots) {
-		// on peut faire const auto &
+		/* on peut faire const auto &
 		for (auto & p : mots) {
 			if (p.key == word)
 			{
-				trouver = true;
 				// Incrémenter valeur
 				p.value++;
 				break;
 			}
-		}
+		}*/
 
-		int * valeur = mots.get(word);
-		if (valeur != nullptr)
-		{
-			// Mot trouvé
-			mots.put(word, *valeur + 1);
-		}
-		else
-		{
-			// Mot non trouvé
-			mots.put(word, 1);
-		}
-
+        // TODO : utiliser mes fonctions tout en haut
 
 		// word est maintenant "tout propre"
 		if (nombre_lu % 100 == 0)
@@ -202,13 +220,13 @@ int main () {
 	}
 	input.close();
 
-	// TODO :
-	/*
-	 * vector<pair<string, int>> vec;
-	 * for (Entry & e : mots {
-	 * 	vec.emplace_back(e.key, e.value
-	 * 	}
-	 * */
+
+    vector<pair<string, int>> vec;
+    for (auto & e : mots) {
+        vec.emplace_back(e.key, e.value);
+        // TODO : régler le problème avec l'operator++
+    }
+
 
 	cout << "Finished Parsing War and Peace" << endl;
 
@@ -220,27 +238,6 @@ int main () {
     cout << "Found a total of " << nombre_lu << " words." << endl;
 
     cout << "Nombre de mots différents : " << mots.size() << endl;
-
-    //for (pair<string, int> paire : mots)
-    //{
-    /* TODO
-	if (paire.first == "war")
-	{
-		cout << "Nombre de fois war : " << mots.get("war") << endl;
-	}
-	else
-	if (paire.first == "peace")
-	{
-		cout << "Nombre de fois peace : " << mots.get("peace") << endl;
-	}
-	else
-	*/
-	/*
-	if (paire.first == "toto")
-	{
-		cout << "Nombre de fois toto : " << paire.second << endl;
-	}
-    } */
 
 
     return 0;
