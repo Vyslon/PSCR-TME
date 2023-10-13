@@ -9,6 +9,8 @@
 #include <forward_list>
 #include <string>
 
+using namespace std;
+
 template <typename K, typename V>
 class HashMap {
 	public:
@@ -30,47 +32,44 @@ class HashMap {
 
 			buckets_t & buck; // ou pointeur de hashmap
 
-			iterator(buckets_t buck, size_t index, typename std::forward_list<Entry>::iterator curr) : buck(buck), index(index), curr(curr)  {}
+			iterator(buckets_t & buck, size_t index, typename std::forward_list<Entry>::iterator curr) : buck(buck), index(index), curr(curr)  {}
 
-			// Gérer débordement ?
-			iterator operator++() {
+			iterator & operator++() {
                 // TODO : ERREUR 1 | buck size = 1 ?????
-				curr++;
-				if (curr == buck[index].end()){
-					index++;
-					while(index < buck.size() && buck[index].empty())
-						index++;
+				++curr;
+				if (curr == buck[index].end())
+                {
+					++index;
+					for(; index < buck.size() && buck[index].empty(); index++) {/* NOP */}
 
 					if (index < buck.size())
 						curr = buck[index].begin();
 				}
-                return iterator(buck, index, curr);
+                return *this;
 			}
+
+            bool operator != (const iterator & o)
+            {
+                return index != o.index || curr != o.curr || &buck != &o.buck;
+            }
 
 			Entry & operator*() {
 				return  *curr ;
-			}
-
-			bool operator!=(const iterator & other) {
-				return curr != other.curr;
 			}
 		};
 
 
 		iterator begin() {
-			if (buckets.size() == 0)
-				return end();
-
-			size_t ind = 0;
-			for (; ind < buckets.size(); ++ind) {
-				if (!buckets[ind].empty())
-					break;
-			}
-			return iterator(buckets, ind, buckets[ind].begin());
+            for (int index = 0; index < buckets.size(); index++)
+            {
+                if (!buckets[index].empty())
+                    return iterator(buckets, index, buckets[index].begin());
+            }
+            return end();
 		}
 
 		iterator end() {
-            return iterator(buckets, buckets.size(), buckets[buckets.size() - 1].end());
+            return iterator(buckets, buckets.size(), buckets[0].end());
 		}
 
 
@@ -106,8 +105,8 @@ class HashMap {
 			 return false;
 		 }
 
+        // nombre de buckets non vides
 		 size_t size() const {
-             // TODO : nombre de buckets non vide?
              int res = 0;
              for (int i = 0; i < buckets.size(); ++i)
              {
@@ -165,7 +164,6 @@ iterator prochainItListeNonVide(iterator begin, iterator end) {
 
 
 int main () {
-	using namespace std;
 	using namespace std::chrono;
 
 	ifstream input = ifstream("./tmp/WarAndPeace.txt");
@@ -220,15 +218,28 @@ int main () {
 	}
 	input.close();
 
+    cout << "Finished Parsing War and Peace" << endl;
 
     vector<pair<string, int>> vec;
+    // todo q7 : vector<pair<string, int>> vec(mots.begin(), mots.end());
     for (auto & e : mots) {
         vec.emplace_back(e.key, e.value);
-        // TODO : régler le problème avec l'operator++
     }
 
+    std::sort(vec.begin(), vec.end(), [] (const pair<string, int> & a, const pair<string, int> & b) {
+        return a.second > b.second;
+    });
 
-	cout << "Finished Parsing War and Peace" << endl;
+    for (int i = 0; i < 10; ++i)
+    {
+        cout << "Mot : " << vec[i].first << " | Nombre d'occurences : " << vec[i].second << "\n";
+    }
+    cout << endl;
+
+    vector<int> test = {1, 1 ,4, 5, 3 ,4 ,8,1};
+
+    cout << "count : " << count(mots.begin(), mots.end()) << endl;
+    cout << "count if equal : " << count_if_equal(test.begin(), test.end(), 1) << endl;
 
 	auto end = steady_clock::now();
     cout << "Parsing took "
@@ -237,7 +248,7 @@ int main () {
 
     cout << "Found a total of " << nombre_lu << " words." << endl;
 
-    cout << "Nombre de mots différents : " << mots.size() << endl;
+    cout << "Nombre de mots différents : " << vec.size() << endl;
 
 
     return 0;
