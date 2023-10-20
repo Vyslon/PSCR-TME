@@ -191,11 +191,11 @@ int main () {
         if (cell != mots.end())
         {
             // TODO : on n'est jamais dans ce cas là
-            mots.insert_or_assign(word, cell->second + 1)
+            mots.insert_or_assign(word, cell->second + 1);
         }
         else
         {
-            mots.insert(word, 1);
+            mots.emplace(word, 1);
         }
 
         // TODO : utiliser mes fonctions tout en haut
@@ -244,7 +244,8 @@ int main () {
         else
         {
             // TODO on met 1 seul élément dans la forward list
-            mots.insert(word, 1);
+            forward_list<string> bruh(1, e.first);
+            freq.insert(e.second, bruh);
         }
     }
 
