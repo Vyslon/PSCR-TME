@@ -231,22 +231,38 @@ int main () {
     cout << "count : " << count(mots.begin(), mots.end()) << endl;
     cout << "count if equal : " << count_if_equal(test.begin(), test.end(), 1) << endl;
 
-    // TODO : TME3 Question 8
     unordered_map<int,forward_list<string>> freq;
+    unordered_map<int,forward_list<string>>::iterator cellFreq;
     for (auto & e : mots)
     {
-        unordered_map<int,forward_list<string>>::iterator cellFreq = freq.find(e.second);
+        cellFreq = freq.find(e.second);
         if (cellFreq != freq.end())
         {
             // TODO : on ajoute 1 élément dans la forwardlist
-            // freq.insert_or_assign(e.second, e.first)
+            cellFreq->second.push_front(e.first);
         }
         else
         {
             // TODO on met 1 seul élément dans la forward list
-            forward_list<string> bruh(1, e.first);
-            freq.insert(e.second, bruh);
+            //freq.emplace(e.second, forward_list<string>{e.first});
+            //freq[e.second] = forward_list<const string>{e.first};
+            forward_list<string> newList{e.first};
+            freq.emplace(e.second, newList);
+
         }
+    }
+
+    int i = 0;
+    for (auto & it : freq) {
+        if (it.first == 34562)
+        {
+            cout << "fréquence : " << to_string(it.first) << " mots : " << endl;
+            for (auto & oui : it.second)
+            {
+                cout << oui << endl;
+            }
+        }
+        i++;
     }
 
     auto end = steady_clock::now();
