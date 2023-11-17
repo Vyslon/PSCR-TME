@@ -1,6 +1,7 @@
 #include "Stack.h"
 #include <iostream>
 #include <unistd.h>
+#include <sys/mman.h>
 #include <sys/wait.h>
 #include <vector>
 
@@ -25,8 +26,8 @@ void consomateur (Stack<char> * stack) {
 int main () {
     // TODO : mettre s en mémoire partagée : mmap
     //  new dans l'adresse rendue par mmap : new (addr) Stack<char>();
-    mmap(0, 8192, 0, 0, );
-	Stack<char> * s = new Stack<char>();
+    void * sp = mmap(0, 8192, 0, 0, -1, 0);
+	Stack<char> * s = new (sp) Stack<char>();
 
 	pid_t pp = fork();
 	if (pp==0) {
