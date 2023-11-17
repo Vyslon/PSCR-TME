@@ -11,6 +11,7 @@
 namespace pr {
 
 class Barrier {
+public:
   mutable std::recursive_mutex m;
   int cpt;
   int nbJobs;
