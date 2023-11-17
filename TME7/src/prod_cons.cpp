@@ -23,6 +23,9 @@ void consomateur (Stack<char> * stack) {
 }
 
 int main () {
+    // TODO : mettre s en mémoire partagée : mmap
+    //  new dans l'adresse rendue par mmap : new (addr) Stack<char>();
+    mmap();
 	Stack<char> * s = new Stack<char>();
 
 	pid_t pp = fork();
@@ -39,6 +42,8 @@ int main () {
 
 	wait(0);
 	wait(0);
+
+    // TODO : munmap
 
 	delete s;
 	return 0;

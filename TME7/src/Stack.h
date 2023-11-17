@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstring> // size_t,memset
+#include <sys/semaphore.h>
 
 namespace pr {
 
@@ -9,9 +10,16 @@ namespace pr {
 template<typename T>
 class Stack {
 	T tab [STACKSIZE];
+    sem_t semp; // Nb cases pleines
+    sem_t semv; // Nb cases vides
+    // TODO : mutex ?
 	size_t sz;
 public :
-	Stack () : sz(0) { memset(tab,0,sizeof tab) ;}
+	Stack () : sz(0) {
+        memset(tab,0,sizeof tab);
+        sem_init(semp);
+        sem_init(semv);
+    }
 
 	T pop () {
 		// bloquer si vide
