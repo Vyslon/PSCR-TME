@@ -9,4 +9,4 @@ add_executable(TME7
         src/chat_common.h
         src/main.cpp
         src/prod_cons.cpp
-        src/Stack.h)
+        src/Stack.h src/main_main.cpp src/main_prod.cpp src/main_cons.cpp)

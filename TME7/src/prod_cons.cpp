@@ -23,12 +23,16 @@ void consomateur (Stack<char> * stack) {
 	}
 }
 
+int doit = false;
+
 int main () {
-    // TODO : mettre s en mémoire partagée : mmap
-    //  new dans l'adresse rendue par mmap : new (addr) Stack<char>();
-    void * sp = mmap(0, 8192, 0, 0, -1, 0);
+    size_t len = sizeof(Stack<char>);
+    //int fd = shm_open("/myshm", O_CREAT|O_EXCL|O_RDWR, 0666);
+    //ftruncate(fd, len);
+    void * sp = mmap(nullptr, len, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANONYMOUS, -1, 0);
 	Stack<char> * s = new (sp) Stack<char>();
 
+    // TODO sig_handler avant fork
 	pid_t pp = fork();
 	if (pp==0) {
 		producteur(s);
@@ -44,9 +48,9 @@ int main () {
 	wait(0);
 	wait(0);
 
-    // TODO : munmap
+    munmap(sp, len);
+    shm_unlink("/myshm");
 
-	delete s;
 	return 0;
 }
 

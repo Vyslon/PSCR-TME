@@ -10,27 +10,42 @@ namespace pr {
 template<typename T>
 class Stack {
 	T tab [STACKSIZE];
-    sem_t *semp; // Nb cases pleines
-    sem_t *semv; // Nb cases vides
-    // TODO : mutex ?
+    sem_t sempop; // Nb cases pleines
+    sem_t sempush; // Nb cases vides
+    sem_t semmut; // mutex
 	size_t sz;
 public :
 	Stack () {
         sz = 0;
+        sem_init(&sempop, 0, 0);
+        sem_init(&sempush, 0, STACKSIZE);
+        sem_init(&semmut, 0, 1);
         memset(tab,0,sizeof tab);
-        sem_init(semp, 0, 0);
-        sem_init(semv, 0, STACKSIZE);
+    }
+
+    ~Stack () {
+        // TODO : symétrique de memset
+        sem_destroy(&sempop);
+        sem_destroy(&sempush);
+        sem_destroy(&semmut);
     }
 
 	T pop () {
+        sem_wait(&sempop);
+        sem_wait(&semmut);
 		// bloquer si vide
 		T toret = tab[--sz];
+        sem_post(&semmut);
+        sem_post(&sempush);
 		return toret;
 	}
 
 	void push(T elt) {
-		//bloquer si plein
+        sem_wait(&sempush);
+        sem_wait(&semmut);
 		tab[sz++] = elt;
+        sem_post(&semmut);
+        sem_post(&sempop);
 	}
 };
 
