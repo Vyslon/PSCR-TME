@@ -13,6 +13,7 @@ public:
 	// une copie identique
 	virtual ConnectionHandler * clone() const = 0;
 	// pour virtual
-	virtual ~ConnectionHandler() {}
+	virtual ~ConnectionHandler() {
+    }
 };}
 #endif /* SRC_CONNECTIONHANDLER_H_ */
