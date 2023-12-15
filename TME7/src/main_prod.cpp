@@ -35,8 +35,7 @@ int main () {
     sa.sa_flags = 0;
     sigaction(SIGINT, &sa, NULL);
      */
-
-    shm_unlink("/myshm2");
+    munmap(s, len);
 
     return 0;
 }

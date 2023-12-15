@@ -15,11 +15,10 @@ class Stack {
     sem_t semmut; // mutex
 	size_t sz;
 public :
-	Stack () {
-        sz = 0;
-        sem_init(&sempop, 0, 0);
-        sem_init(&sempush, 0, STACKSIZE);
-        sem_init(&semmut, 0, 1);
+	Stack () : sz(0) {
+        sem_init(&sempop, 1, 0);
+        sem_init(&sempush, 1, STACKSIZE);
+        sem_init(&semmut, 1, 1);
         memset(tab,0,sizeof tab);
     }
 

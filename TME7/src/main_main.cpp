@@ -19,7 +19,7 @@ void handler(int sig) {
 int main () {
     shm_unlink("/myshm2");
     size_t len = sizeof(Stack<char>);
-    int fd = shm_open("/myshm2", O_CREAT | O_RDWR, 0666);
+    int fd = shm_open("/myshm2", O_CREAT | O_EXCL | O_RDWR, 0666);
     ftruncate(fd, len);
     void *sp = mmap(0, len, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
     if (sp == MAP_FAILED) {
@@ -36,8 +36,8 @@ int main () {
 
     sigsuspend(&sa.sa_mask);
 
-    munmap(sp, len);
-    shm_unlink("/myshm2");
 
+    shm_unlink("/myshm2");
+    munmap(sp, len);
     return 0;
 }
